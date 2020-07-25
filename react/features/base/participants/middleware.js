@@ -66,9 +66,14 @@ MiddlewareRegistry.register(store => next => action => {
 
         return _localParticipantLeft(store, next, action);
 
-    case CONFERENCE_WILL_JOIN:
+    case CONFERENCE_WILL_JOIN: {
+        APP.conference.commands.addCommandListener('MEETING_ENDED', () => {
+            APP.conference.hangup(false);
+        });
+
         store.dispatch(localParticipantIdChanged(action.conference.myUserId()));
         break;
+    }
 
     case DOMINANT_SPEAKER_CHANGED: {
         // Ensure the raised hand state is cleared for the dominant speaker.

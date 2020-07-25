@@ -6,6 +6,9 @@ declare var APP: Object;
 declare var config: Object;
 
 import { configureInitialDevices } from '../devices';
+import {
+    isLocalParticipantModerator,
+} from '../participants';
 import { getBackendSafeRoomName } from '../util';
 
 export {
@@ -47,5 +50,18 @@ export function connect() {
 export function disconnect(requestFeedback: boolean = false) {
     // XXX For web based version we use conference hanging up logic from the old
     // app.
+    const state = APP.store.getState();
+    const isModerator = isLocalParticipantModerator(state);
+
+    if (isModerator) {
+        APP.conference.commands.sendCommand('MEETING_ENDED', {
+            value: requestFeedback
+        });
+
+        return () => {
+            console.log('dispatching something');
+        };
+    }
+
     return () => APP.conference.hangup(requestFeedback);
 }
